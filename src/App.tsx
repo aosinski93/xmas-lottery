@@ -1,26 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useCallback, useEffect } from 'react';
+import { supabase } from './services/supabase';
 
-function App() {
+const App = () => {
+  const [data, setData] = React.useState<any>([]);
+  const fetchUsers = useCallback(async () => {
+    const { data, error } = await supabase.from<any>('users').select('*');
+    if (error) {
+
+    }
+    setData(data);
+  }, []);
+
+  useEffect(() => {
+    fetchUsers().catch(console.error);
+  }, [fetchUsers]);
+
+  console.log(data);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className={'max-w-md mx-auto text-center h-screen font-sans'}>
+      xmas lottery
     </div>
   );
-}
+};
 
 export default App;
