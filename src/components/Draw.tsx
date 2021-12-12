@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 import { dataAtom, resultAtom, stepAtom, userAtom } from '../atoms';
 import { initializeWheel } from '../services/wheel';
 import useSetDrawResult from '../services/hooks/useSetDrawResult';
+import useSetDrawInProgress from '../services/hooks/useSetDrawInProgress';
 
 interface Props {}
 
@@ -15,6 +16,7 @@ export const Draw = (props: Props) => {
   const usersToDraw = users.filter((el) => !el.has_been_drawn);
   const wheelRef = useRef<HTMLDivElement>(null);
   const { setResult: setDrawResult } = useSetDrawResult();
+  const { setDrawInProgressFalse: updateUtilsTable } = useSetDrawInProgress();
 
   const draw = useCallback(
     ({ text }: { text: string; chance: number }) => {
@@ -25,13 +27,13 @@ export const Draw = (props: Props) => {
       if (drawnUser) {
         setResult(drawnUser);
         setDrawResult(drawnUser);
+        updateUtilsTable();
       }
     },
-    [setDrawResult, setResult, usersToDraw]
+    [setDrawResult, setResult, updateUtilsTable, usersToDraw]
   );
 
   useEffect(() => {
-    // debugger;
     if (wheelRef.current?.children.length === 0) {
       const data = usersToDraw
         .filter((user) => user.first_name !== currentUser?.first_name)
@@ -51,11 +53,7 @@ export const Draw = (props: Props) => {
   }, [currentUser?.first_name, draw, usersToDraw]);
 
   return (
-    <div
-      className={
-        'flex flex-col items-center gap-4 bg-background-color-snow pt-6'
-      }
-    >
+    <div className={'flex flex-col items-center gap-4 pt-6'}>
       <div ref={wheelRef} id="wheel" />
       {result && (
         <div className="flex items-center justify-between w-full px-4">
