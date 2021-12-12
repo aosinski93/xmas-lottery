@@ -2333,6 +2333,11 @@ alphanum-sort@^1.0.0:
   resolved "https://registry.yarnpkg.com/alphanum-sort/-/alphanum-sort-1.0.2.tgz#97a1119649b211ad33691d9f9f486a8ec9fbe0a3"
   integrity sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=
 
+animejs@^3.0.0:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/animejs/-/animejs-3.2.1.tgz#de9fe2e792f44a777a7fdf6ae160e26604b0cdda"
+  integrity sha512-sWno3ugFryK5nhiDm/2BKeFCpZv7vzerWUcUPyAZLDhMek3+S/p418ldZJbJXo5ZUOpfm2kP2XRO4NJcULMy9A==
+
 ansi-colors@^3.0.0:
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-3.2.4.tgz#e3a3da4bfbae6c86a9c285625de124a234026fbf"
@@ -7302,6 +7307,13 @@ loose-envify@^1.1.0, loose-envify@^1.4.0:
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
+
+lottery-wheel@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/lottery-wheel/-/lottery-wheel-2.4.1.tgz#b823b6aea28b5ba8b4d84fecb6ee9287af377922"
+  integrity sha512-eyNnr1hIyxAbDITvHF8xjMh/mwRL+dtHOmAKcV83/TPb1BgqxNHR4nMjytFHF93a2Wu2QVRqZ/AbtXjdOZNr8Q==
+  dependencies:
+    animejs "^3.0.0"
 
 lower-case@^2.0.2:
   version "2.0.2"

@@ -1,0 +1,1 @@
+declare module 'lottery-wheel';
