@@ -1,43 +1,54 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 import { useAtom } from 'jotai';
-import { dataAtom, stepAtom } from '../atoms';
-import { Ball } from './Ball';
+import { dataAtom, resultAtom, stepAtom, userAtom } from '../atoms';
 import { initializeWheel } from '../services/wheel';
+import useSetDrawResult from '../services/hooks/useSetDrawResult';
 
 interface Props {}
 
 export const Draw = (props: Props) => {
   const [users] = useAtom(dataAtom);
   const [, setStep] = useAtom(stepAtom);
-  const [userDrawn, setUserDrawn] = useState(false);
-  const [numberBall, setNumberBall] = useState(1);
+  const [result, setResult] = useAtom(resultAtom);
+  const [currentUser] = useAtom(userAtom);
   const usersToDraw = users.filter((el) => !el.has_been_drawn);
-  const numOfBalls = Array.apply(null, Array(usersToDraw.length)).map(
-    (x, i) => i
-  );
   const wheelRef = useRef<HTMLDivElement>(null);
+  const { setResult: setDrawResult } = useSetDrawResult();
 
-  const draw = () => {
-    const randomNum = Math.floor(Math.random() * usersToDraw.length);
-    setNumberBall(randomNum + 1);
-    setTimeout(() => {
-      setUserDrawn(true);
-    }, 1000);
+  const draw = useCallback(
+    ({ text }: { text: string; chance: number }) => {
+      const drawnUser =
+        usersToDraw.find((el) => el.first_name === text) || null;
+      console.log(drawnUser);
 
-    return usersToDraw[randomNum];
-  };
+      if (drawnUser) {
+        setResult(drawnUser);
+        setDrawResult(drawnUser);
+      }
+    },
+    [setDrawResult, setResult, usersToDraw]
+  );
 
   useEffect(() => {
-    if (numOfBalls.length > 3 && wheelRef.current?.children.length === 0) {
+    // debugger;
+    if (wheelRef.current?.children.length === 0) {
+      const data = usersToDraw
+        .filter((user) => user.first_name !== currentUser?.first_name)
+        .map((user) => ({ text: user.first_name }));
+
+      while (data.length < 3) {
+        data.push(...data);
+      }
+
       initializeWheel({
-        data: numOfBalls,
+        data,
         config: {
-          onSuccess: (data) => console.log(data),
+          onSuccess: draw,
         },
       });
     }
-  }, [numOfBalls]);
+  }, [currentUser?.first_name, draw, usersToDraw]);
 
   return (
     <div
@@ -46,31 +57,22 @@ export const Draw = (props: Props) => {
       }
     >
       <div ref={wheelRef} id="wheel" />
-      <button
-        className="py-2 px-6 rounded-full bg-balls-4 text-sm font-mono font-extrabold tracking-wider text-white"
-        onClick={draw}
-      >
-        LOSUJ
-      </button>
-      {userDrawn && (
+      {result && (
         <div className="flex items-center justify-between w-full px-4">
           <img src="/images/giftbox.png" alt="" className="h-14 w-14" />
           <div
             className={
-              'h-36 w-36 px-2 flex flex-col items-center justify-end gap-1 bg-background-gift bg-center bg-contain bg-no-repeat'
+              'h-36 w-36 px-2 flex flex-col items-center justify-end gap-1 bg-background-gift bg-center bg-contain bg-no-repeat cursor-pointer'
             }
+            onClick={() => {
+              setStep(3);
+            }}
           >
-            <div
-              onClick={() => {
-                setStep(3);
-              }}
-              className="flex justify-center items-center w-12 h-12 rounded-full bg-balls-4 text-sm font-mono font-extrabold text-white"
-            >
-              {numberBall}
+            <div className="flex justify-center items-center w-12 h-12 rounded-full bg-balls-4 text-sm font-mono font-extrabold text-white">
+              {result?.first_name}
             </div>
             <span className="text-xs font-mono font-bold tracking-wider text-balls-4 py-3">
-              {' '}
-              KLIKNIJ WE MNIE
+              Pokaż propozycje
             </span>
           </div>
           <img src="/images/giftbox.png" alt="" className="h-14 w-14" />

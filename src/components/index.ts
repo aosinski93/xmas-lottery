@@ -1,4 +1,3 @@
-export * from './Ball';
 export * from './Draw';
 export * from './Footer';
 export * from './Header';

@@ -16,10 +16,10 @@ export const Welcome = (props: Props) => {
     setDropdownOpen(false);
     setTimeout(() => {
       setStep(2);
-    }, 1000)
+    }, 1000);
   };
   return (
-    <div className="flex flex-col items-center gap-4 bg-background-color-snow pt-6 h-full">
+    <div className="flex flex-col items-center gap-4 bg-background-color-snow pt-6">
       <button
         className="py-2 px-6 rounded-full bg-balls-4 text-sm font-mono font-extrabold tracking-wider text-white"
         onClick={() => setDropdownOpen(!dropdownOpen)}

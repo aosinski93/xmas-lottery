@@ -1,7 +1,11 @@
 import Wheel from 'lottery-wheel';
 
+interface DataObject {
+  text: string;
+  chance?: number;
+}
 export interface InitializeWheelParams {
-  data: number[];
+  data: DataObject[];
   config?: {
     onSuccess?: (data: any) => void;
     onFail?: () => void;
@@ -12,25 +16,16 @@ export interface InitializeWheelParams {
 }
 
 export const initializeWheel = ({ data, config }: InitializeWheelParams) => {
-  console.log(config);
-
   return new Wheel({
     el: document.getElementById('wheel'),
-    data: [
-      'Adam',
-      'John',
-      'Jane',
-      'John',
-      'Adam',
-      'Adam',
-      'John',
-      'Jane',
-      'John',
-      'Adam',
-      'Adam',
-    ],
+    data,
     buttonText: 'Losuj',
-    radius: 200,
+    radius: 175,
+    limit: 1,
+    duration: 2000,
+    onFail: () => {
+      alert('Mozesz wylosować tylko jeden raz');
+    },
     ...config,
   });
 };
