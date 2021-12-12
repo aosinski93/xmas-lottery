@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors');
+
 module.exports = {
   purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
   darkMode: false, // or 'media' or 'class'
@@ -26,4 +28,14 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  theme: {
+    colors: {
+      transparent: 'transparent',
+      current: 'currentColor',
+      'ball-1': '#B68080',
+      gray: '#8492a6',
+      white: '#FFFFFF',
+      ...colors,
+    },
+  },
 };
