@@ -1,22 +1,24 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { dataAtom, resultAtom, stepAtom, userAtom } from '../atoms';
+import { dataAtom, resultAtom, userAtom } from '../atoms';
 import { initializeWheel } from '../services/wheel';
 import useSetDrawResult from '../services/hooks/useSetDrawResult';
 import useSetDrawInProgress from '../services/hooks/useSetDrawInProgress';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 interface Props {}
 
 export const Draw = (props: Props) => {
   const [users] = useAtom(dataAtom);
-  const [, setStep] = useAtom(stepAtom);
   const [result, setResult] = useAtom(resultAtom);
   const [currentUser] = useAtom(userAtom);
   const usersToDraw = users.filter((el) => !el.has_been_drawn);
   const wheelRef = useRef<HTMLDivElement>(null);
+  const giftsRef = useRef<HTMLDivElement>(null);
   const { setResult: setDrawResult } = useSetDrawResult();
   const { setDrawInProgressFalse: updateUtilsTable } = useSetDrawInProgress();
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const draw = useCallback(
     ({ text }: { text: string; chance: number }) => {
@@ -32,6 +34,10 @@ export const Draw = (props: Props) => {
     },
     [setDrawResult, setResult, updateUtilsTable, usersToDraw]
   );
+
+  const handleCopy = useCallback(() => {
+    setCopySuccess(true);
+  }, []);
 
   useEffect(() => {
     if (wheelRef.current?.children.length === 0) {
@@ -58,48 +64,57 @@ export const Draw = (props: Props) => {
         'flex flex-col flex-auto items-center gap-4 bg-background-color-snow pt-6'
       }
     >
-      <div ref={wheelRef} id="wheel" className="z-10 shadow-lg rounded-full" />
-      {result && (
-        <div className="flex items-center justify-between w-full px-4 z-10">
-          <div
-            className={
-              'w-full flex flex-col items-center justify-end gap-1 bg-white rounded-3xl p-6 border-2 border-santa-red-light'
-            }
-          >
-            <div className="flex justify-center items-center p-6 h-12 rounded-full bg-santa-blue text-sm font-extrabold text-black-enough">
-              {result?.first_name}
-            </div>
-            <span className="text-sm text-black-enough font-semibold pb-2 pt-4">
-              Propozycje prezentowe:
-            </span>
-            {result.gift_suggestions?.map((gift) => (
-              <div
-                key={gift}
-                className="flex items-center justify-between text-sm text-black-enough"
-              >
-                <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
-                <span className="px-2"> {gift}</span>
-                <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
-              </div>
-            ))}
-            {!result.gift_suggestions && (
-              <div className="flex items-center justify-between text-sm text-black-enough">
-                <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
-                <span className="px-2">rózga</span>
-                <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
-                <span className="px-2">
-                  (bo nie zostały przekazane propozycje)
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-      <img
-        src="/images/santa-trees.png"
-        alt=""
-        className="fixed bottom-0 lg:max-w-lg"
+      <div
+        ref={wheelRef}
+        id="wheel"
+        className="z-10 shadow-lg rounded-full z-20"
       />
+      {result && (
+        <CopyToClipboard
+          text={result.gift_suggestions.join('\n')}
+          onCopy={handleCopy}
+        >
+          <div className="flex items-center justify-between w-full px-4 cursor-pointer z-20">
+            <div
+              className={
+                'w-full flex flex-col items-center justify-end gap-1 bg-white rounded-3xl p-6 border-2 border-santa-red-light cursor-pointer'
+              }
+              onClick={handleCopy}
+              ref={giftsRef}
+            >
+              <div className="flex justify-center items-center p-6 h-12 rounded-full bg-santa-blue text-sm font-extrabold text-black-enough">
+                {result?.first_name}
+              </div>
+              <span className="text-sm text-black-enough font-semibold pb-2 pt-4">
+                Propozycje prezentowe:
+              </span>
+              {result.gift_suggestions?.map((gift) => (
+                <div
+                  key={gift}
+                  className="flex items-center justify-between text-sm text-black-enough"
+                >
+                  <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
+                  <span className="px-4"> {gift}</span>
+                  <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
+                </div>
+              ))}
+              <small className=" mt-3 font-bold text-santa-blue">
+                {copySuccess ? 'Skopiowano!' : 'Kliknij żeby skopiować'}
+              </small>
+              {!result.gift_suggestions && (
+                <div className="flex items-center justify-between text-sm text-black-enough">
+                  <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
+                  <span className="px-2">rózga</span>
+                  <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
+                  <span className="px-2">
+                    (bo nie zostały przekazane propozycje)
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </CopyToClipboard>
+      )}
     </div>
   );
 };
