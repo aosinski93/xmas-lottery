@@ -35,7 +35,14 @@ module.exports = {
       'ball-1': '#B68080',
       gray: '#8492a6',
       white: '#FFFFFF',
+      'balls-4': '#A8D7E4',
       ...colors,
     },
+    extend: {
+      backgroundImage: {
+        'background-color-snow': "url('assets/background.png')",
+        'background-gift': "url('assets/giftbox-empty.png')",
+      }
+    }
   },
 };
