@@ -14,18 +14,21 @@ export const Welcome = (props: Props) => {
   const handleSetUser = async (user: User) => {
     setUser(user);
     setDropdownOpen(false);
+    setTimeout(() => {
+      setStep(2);
+    }, 1000)
   };
   return (
-    <div className="flex flex-col py-5 max-w-xl mx-auto">
+    <div className="flex flex-col items-center gap-4 bg-background-color-snow pt-6 h-full">
       <button
-        className="mx-auto py-3 bg-gray-500 rounded-lg"
+        className="py-2 px-6 rounded-full bg-balls-4 text-sm font-mono font-extrabold tracking-wider text-white"
         onClick={() => setDropdownOpen(!dropdownOpen)}
       >
-        Imię
+        IMIĘ
       </button>
 
       <ul
-        className={`mt-2  border-gray-400 bg-gray-100 rounded-lg max-w-6xl  mx-auto shadow-md ${
+        className={`mt-2  border-balls-4 bg-gray-100 text-balls-4 rounded-lg max-w-6xl  mx-auto shadow-md ${
           dropdownOpen ? 'h-auto border' : 'h-0 overflow-hidden'
         }`}
       >
