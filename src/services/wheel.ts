@@ -24,7 +24,7 @@ export const initializeWheel = ({ data, config }: InitializeWheelParams) => {
     limit: 1,
     duration: 2000,
     onFail: () => {
-      alert('Mozesz wylosować tylko jeden raz');
+      alert('Możesz wylosować tylko jeden raz');
     },
     ...config,
     color: {
