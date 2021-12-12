@@ -32,10 +32,13 @@ module.exports = {
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
-      'ball-1': '#B68080',
       gray: '#8492a6',
       white: '#FFFFFF',
-      'balls-4': '#A8D7E4',
+      'santa-blue': '#A8D7E4',
+      'black-enough': '#525252',
+      'santa-red-light': '#FF9C9C',
+      'santa-red': '#F68080',
+      'santa-red-darker': '#E56161',
       ...colors,
     },
     extend: {

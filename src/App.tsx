@@ -3,10 +3,8 @@ import { supabase } from './services/supabase';
 import { useAtom } from 'jotai';
 import { dataAtom, stepAtom } from './atoms';
 import { User } from './types/Users';
-import { Welcome, Draw, Result } from './components';
+import { Welcome, Draw } from './components';
 import Header from './components/Header';
-import Footer from './components/Footer';
-import useSetDrawInProgress from './services/hooks/useSetDrawInProgress';
 
 const App = () => {
   const [step] = useAtom(stepAtom);
@@ -24,14 +22,14 @@ const App = () => {
   }, [fetchUsers]);
 
   return (
-    <div className={'lg:max-w-lg mx-auto text-center h-screen font-sans'}>
+    <div
+      className={
+        'flex flex-col lg:max-w-lg mx-auto text-center h-screen font-sans'
+      }
+    >
       <Header />
-      <div className="bg-background-color-snow">
-        {step === 1 && <Welcome />}
-        {step === 2 && <Draw />}
-        {step === 3 && <Result />}
-      </div>
-      <Footer />
+      {step === 1 && <Welcome />}
+      {step === 2 && <Draw />}
     </div>
   );
 };
