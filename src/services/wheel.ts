@@ -27,5 +27,13 @@ export const initializeWheel = ({ data, config }: InitializeWheelParams) => {
       alert('Mozesz wylosować tylko jeden raz');
     },
     ...config,
+    color: {
+      border: '#FFFFFF',
+      line: '#FFFFFF',
+      prize: '#F68080',
+      button: '#E56161',
+      prizeFont: '#FFFFFF',
+      buttonFont: '#black-enough'
+    }
   });
 };

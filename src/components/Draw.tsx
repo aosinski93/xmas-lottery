@@ -53,32 +53,42 @@ export const Draw = (props: Props) => {
   return (
     <div
       className={
-        'flex flex-col items-center gap-4 bg-background-color-snow pt-6'
+        'flex flex-col flex-auto items-center gap-4 bg-background-color-snow pt-6'
       }
     >
-      <div ref={wheelRef} id="wheel" />
+      <div ref={wheelRef} id="wheel" className='z-10 shadow-lg rounded-full'/>
       {result && (
-        <div className="flex items-center justify-between w-full px-4">
-          <img src="/images/giftbox.png" alt="" className="h-14 w-14" />
+        <div className="flex items-center justify-between w-full px-4 z-10">
           <div
             className={
-              'h-36 w-36 px-2 flex flex-col items-center justify-end gap-1 bg-background-gift bg-center bg-contain bg-no-repeat cursor-pointer'
+              'w-full flex flex-col items-center justify-end gap-1 bg-white rounded-3xl p-6 border-2 border-santa-red-light'
             }
-            onClick={() => {
-              setStep(3);
-            }}
           >
-            <div className="flex justify-center items-center w-12 h-12 rounded-full bg-balls-4 text-sm font-mono font-extrabold text-white">
+            <div className="flex justify-center items-center p-6 h-12 rounded-full bg-santa-blue text-sm font-extrabold text-black-enough">
               {result?.first_name}
             </div>
-            <span className="text-xs font-mono font-bold tracking-wider text-balls-4 py-3">
-              Pokaż propozycje
+            <span className="text-sm text-black-enough font-semibold pb-2 pt-4">
+              Propozycje prezentowe:
             </span>
+            {result.gift_suggestions && result.gift_suggestions.map((gift => 
+              <div className='flex items-center justify-between text-sm text-black-enough'>
+                <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
+                <span className='px-2'> {gift} </span>
+                <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
+              </div>
+            ))}
+            {!result.gift_suggestions &&
+              <div className='flex items-center justify-between text-sm text-black-enough'>
+                <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
+                <span className='px-2'> rózga </span>
+                <img src="/images/giftbox.png" alt="" className="h-4 w-4" />
+                <span className='px-2'> (bo nie zostały przekazane propozycja) </span>
+              </div>
+            }
           </div>
-          <img src="/images/giftbox.png" alt="" className="h-14 w-14" />
         </div>
       )}
-      <img src="/images/santa-trees.png" alt="" />
+      <img src="/images/santa-trees.png" alt="" className='fixed bottom-0' />
     </div>
   );
 };
