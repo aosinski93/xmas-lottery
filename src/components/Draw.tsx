@@ -21,7 +21,7 @@ export const Draw = (props: Props) => {
   const [copySuccess, setCopySuccess] = useState(false);
 
   const draw = useCallback(
-    ({ text }: { text: string; chance: number }) => {
+    async ({ text }: { text: string; chance: number }) => {
       const drawnUser =
         usersToDraw.find((el) => el.first_name === text) || null;
       console.log(drawnUser);
@@ -29,7 +29,7 @@ export const Draw = (props: Props) => {
       if (drawnUser) {
         setResult(drawnUser);
         setDrawResult(drawnUser);
-        updateUtilsTable();
+        await updateUtilsTable();
       }
     },
     [setDrawResult, setResult, updateUtilsTable, usersToDraw]

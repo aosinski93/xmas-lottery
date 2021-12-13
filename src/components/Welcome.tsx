@@ -49,9 +49,9 @@ export const Welcome = (props: Props) => {
     console.log(`Waiting ${timeout}ms`);
     setLoading(true);
     setUser(user);
-    setTimeout(() => {
+    setTimeout(async () => {
+      await updateUtilsTable(user.first_name);
       setDropdownOpen(false);
-      updateUtilsTable(user.first_name);
       setStep(2);
       setLoading(false);
     }, timeout);
@@ -113,7 +113,6 @@ export const Welcome = (props: Props) => {
             ))}
         </ul>
       )}
-     
     </div>
   );
 };
