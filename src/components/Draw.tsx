@@ -67,7 +67,7 @@ export const Draw = (props: Props) => {
       <div
         ref={wheelRef}
         id="wheel"
-        className="z-10 shadow-lg rounded-full z-20"
+        className="shadow-lg rounded-full z-30"
       />
       {result && (
         <CopyToClipboard
