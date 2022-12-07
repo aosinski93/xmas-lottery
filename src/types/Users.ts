@@ -5,4 +5,5 @@ export interface User {
   has_been_drawn: boolean;
   already_drew: boolean;
   draw_result: User | null;
+  excluded_users: number[];
 }
