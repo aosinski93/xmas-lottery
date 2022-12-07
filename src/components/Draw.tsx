@@ -7,13 +7,11 @@ import useSetDrawResult from '../services/hooks/useSetDrawResult';
 import useSetDrawInProgress from '../services/hooks/useSetDrawInProgress';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-interface Props {}
-
-export const Draw = (props: Props) => {
+export const Draw = () => {
   const [users] = useAtom(dataAtom);
   const [result, setResult] = useAtom(resultAtom);
   const [currentUser] = useAtom(userAtom);
-  const usersToDraw = users.filter((el) => !el.has_been_drawn);
+  const usersToDraw = users.filter((user) => !user.has_been_drawn);
   const wheelRef = useRef<HTMLDivElement>(null);
   const giftsRef = useRef<HTMLDivElement>(null);
   const { setResult: setDrawResult } = useSetDrawResult();
@@ -24,7 +22,6 @@ export const Draw = (props: Props) => {
     async ({ text }: { text: string; chance: number }) => {
       const drawnUser =
         usersToDraw.find((el) => el.first_name === text) || null;
-      console.log(drawnUser);
 
       if (drawnUser) {
         setResult(drawnUser);
@@ -41,12 +38,20 @@ export const Draw = (props: Props) => {
 
   useEffect(() => {
     if (wheelRef.current?.children.length === 0) {
-      const data = usersToDraw
-        .filter((user) => user.first_name !== currentUser?.first_name)
+      let data = usersToDraw
+        .filter(
+          (user) =>
+            user.first_name !== currentUser?.first_name &&
+            !(currentUser?.excluded_users || []).includes(user.id)
+        )
         .map((user) => ({ text: user.first_name }));
 
       while (data.length < 3) {
         data.push(...data);
+      }
+
+      if (data.length > 12) {
+        data = data.slice(0, 11);
       }
 
       initializeWheel({
@@ -56,7 +61,7 @@ export const Draw = (props: Props) => {
         },
       });
     }
-  }, [currentUser?.first_name, draw, usersToDraw]);
+  }, [currentUser, draw, usersToDraw]);
 
   return (
     <div
@@ -64,11 +69,7 @@ export const Draw = (props: Props) => {
         'flex flex-col flex-auto items-center gap-4 bg-background-color-snow pt-6'
       }
     >
-      <div
-        ref={wheelRef}
-        id="wheel"
-        className="shadow-lg rounded-full z-30"
-      />
+      <div ref={wheelRef} id="wheel" className="shadow-lg rounded-full z-30" />
       {result && (
         <CopyToClipboard
           text={result.gift_suggestions.join('\n')}
