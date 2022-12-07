@@ -33,7 +33,6 @@ export const Welcome = (props: Props) => {
     const mySubscription = supabase
       .from('utils')
       .on('*', (payload) => {
-        console.log(payload);
         setDrawInProgress(payload.new.draw_in_progress);
         setDrawingUser(payload.new.user_drawing);
       })
@@ -46,7 +45,6 @@ export const Welcome = (props: Props) => {
 
   const handleSetUser = async (user: User) => {
     const timeout = Math.random() * 5000 + 1;
-    console.log(`Waiting ${timeout}ms`);
     setLoading(true);
     setUser(user);
     setTimeout(async () => {

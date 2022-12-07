@@ -23,7 +23,6 @@ const App = () => {
     const mySubscription = supabase
       .from('users')
       .on('*', (payload) => {
-        console.log(payload);
         fetchUsers().catch(console.error);
       })
       .subscribe();
