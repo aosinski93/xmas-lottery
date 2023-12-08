@@ -1,17 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { dataAtom, stepAtom, userAtom } from '../atoms';
 import { User } from '../types/Users';
 import { supabase } from '../services/supabase';
 import useSetDrawInProgress from '../services/hooks/useSetDrawInProgress';
 import { Utils } from '../types/Utils';
 
-interface Props {}
-
-export const Welcome = (props: Props) => {
+export const Welcome = () => {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  const [, setStep] = useAtom(stepAtom);
-  const [data] = useAtom(dataAtom);
+  const setStep = useSetAtom(stepAtom);
+  const data = useAtomValue(dataAtom);
   const [currentUser, setUser] = useAtom(userAtom);
   const [loading, setLoading] = useState(false);
   const [drawInProgress, setDrawInProgress] = React.useState(true);
@@ -90,19 +88,19 @@ export const Welcome = (props: Props) => {
 
       {!drawInProgress && (
         <ul
-          className={`mt-2 w-64 max-w-full border-santa-red-darker  bg-gray-100 rounded-lg max-w-6xl  mx-auto shadow-md z-10 ${
+          className={`mt-2 w-64 border-santa-red-darker  bg-gray-100 rounded-lg max-w-6xl  mx-auto shadow-md z-10 ${
             dropdownOpen ? 'h-auto border' : 'h-0 overflow-hidden'
           }`}
         >
           <li className="text-santa-red-darker m-2 py-2 rounded-lg">
-            {' '}
-            Wybierz swoje imię{' '}
+            Wybierz swoje imię
           </li>
           {data
             .filter((user) => !user.already_drew)
             .map((user) => (
               <li
                 key={user.id}
+                onKeyDown={() => handleSetUser(user)}
                 onClick={() => handleSetUser(user)}
                 className="hover:bg-gray-400 cursor-pointer m-4 py-1 rounded-lg text-black-enough "
               >
