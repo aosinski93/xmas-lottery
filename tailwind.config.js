@@ -1,8 +1,7 @@
-const colors = require('tailwindcss/colors');
-
-module.exports = {
-  purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
-  darkMode: false, // or 'media' or 'class'
+import colors from 'tailwindcss/colors';
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html'],
   screens: {
     sm: '480px',
     md: '768px',
@@ -45,7 +44,7 @@ module.exports = {
       backgroundImage: {
         'background-color-snow': "url('assets/background.png')",
         'background-gift': "url('assets/giftbox-empty.png')",
-      }
-    }
+      },
+    },
   },
 };
