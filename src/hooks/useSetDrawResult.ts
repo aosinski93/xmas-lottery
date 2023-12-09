@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
-import { userAtom } from '../../atoms';
-import { User } from '../../types/Users';
-import { supabase } from '../supabase';
+import { userAtom } from '../atoms';
+import { User } from '../types/Users';
+import { supabase } from '../services/supabase';
 
 export default function useSetDrawResult() {
   const [user] = useAtom(userAtom);

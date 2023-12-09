@@ -3,7 +3,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { dataAtom, stepAtom, userAtom } from '../atoms';
 import { User } from '../types/Users';
 import { supabase } from '../services/supabase';
-import useSetDrawInProgress from '../services/hooks/useSetDrawInProgress';
+import useSetDrawInProgress from '../hooks/useSetDrawInProgress';
 import { Utils } from '../types/Utils';
 
 export const Welcome = () => {

@@ -1,4 +1,4 @@
-import { supabase } from '../supabase';
+import { supabase } from '../services/supabase';
 
 export default function useSetDrawResult() {
   const setDrawInProgressTrue = async (username?: string) => {

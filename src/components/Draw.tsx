@@ -3,8 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
 import { dataAtom, resultAtom, userAtom } from '../atoms';
 import { initializeWheel } from '../services/wheel';
-import useSetDrawResult from '../services/hooks/useSetDrawResult';
-import useSetDrawInProgress from '../services/hooks/useSetDrawInProgress';
+import useSetDrawResult from '../hooks/useSetDrawResult';
+import useSetDrawInProgress from '../hooks/useSetDrawInProgress';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export const Draw = () => {
