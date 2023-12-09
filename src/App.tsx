@@ -1,7 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { stepAtom } from './atoms';
-import { Welcome, Draw } from './components';
-import Header from './components/Header';
+import { Welcome, Draw, Header } from './components';
 import { useUsers } from './hooks/useUsers';
 
 type Steps = {
