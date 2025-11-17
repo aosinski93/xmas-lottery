@@ -13,7 +13,8 @@ export const useUsers = () => {
       const { data } = await supabase
         .from<User>('users')
         .select('*')
-        .eq('family', currentUser?.family);
+        .eq('family', currentUser?.family)
+        .neq('id', currentUser.id);
 
       if (data) {
         setData(data);

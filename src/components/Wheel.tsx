@@ -1,186 +1,232 @@
-// WheelOfFortune.tsx — TypeScript React 17 component
-// Converted from the previous JS version.
+import React, { useRef, useState, useEffect } from 'react';
+import styled from 'styled-components';
 
-import React, { useRef, useEffect, useState } from 'react';
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
-export interface WheelSegment {
-  label: string;
-  value?: any;
-  color?: string;
+export const Button = styled.button`
+  padding: 1rem;
+  margin: 0.5rem;
+  background-color: #282c34;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  font-weight: bold;
+
+  // hover effect
+  &:hover {
+    background-color: #61dafb;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const Popup = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  color: #006400;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  z-index: 1000;
+  animation: popin 1s ease-out;
+
+  @keyframes popin {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+`;
+
+interface WheelProps {
+  participants: string[];
+  onDrawSuccess: (winner: string) => void;
 }
 
-interface WheelOfFortuneProps {
-  segments?: WheelSegment[];
-  size?: number;
-  duration?: number;
-  onFinish?: (segment: WheelSegment) => void;
-  spinVelocity?: number;
-  winningIndex?: number | null;
-  disableWhileSpinning?: boolean;
-}
+const colors = [
+  '#CC4629', // Darker vibrant orange
+  '#CC9A29', // Darker bright yellow
+  '#B2CC29', // Darker light green-yellow
+  '#5ECC29', // Darker bright green
+  '#29CC46', // Darker bright teal-green
+  '#29CC99', // Darker turquoise
+  '#2985CC', // Darker sky blue
+  '#293FCC', // Darker bright blue
+  '#4629CC', // Darker purple
+  '#9929CC', // Darker violet
+  '#CC2981', // Darker hot pink
+  '#CC2929', // Darker red
+  '#CC5929', // Darker coral
+  '#CC9529', // Darker gold
+  '#B2CC29', // Darker lime green
+  '#66CC29', // Darker olive green
+  '#29CC5F', // Darker mint green
+  '#29CC91', // Darker pale turquoise
+  '#298ECC', // Darker deep sky blue
+  '#4A29CC', // Darker royal blue
+  '#8429CC', // Darker medium purple
+  '#CC298F', // Darker fuchsia
+  '#CC294F', // Darker hot pink
+];
 
-export default function WheelOfFortune({
-  segments = [{ label: 'A' }, { label: 'B' }, { label: 'C' }, { label: 'D' }],
-  size = 400,
-  duration = 5000,
-  onFinish = () => {},
-  spinVelocity = 0.35,
-  winningIndex = null,
-  disableWhileSpinning = true,
-}: WheelOfFortuneProps) {
+export const Wheel = ({ participants, onDrawSuccess }: WheelProps) => {
+  const [spinning, setSpinning] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [popupWinner, setPopupWinner] = useState<string | null>(null);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const [angle, setAngle] = useState(0); // radians
-  const [isSpinning, setIsSpinning] = useState(false);
+  const numSectors = participants.length;
 
-  const segCount = Math.max(2, segments.length);
-  const segAngle = (Math.PI * 2) / segCount;
-
-  // draw wheel
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (canvasRef.current) {
+      drawWheel();
+    }
+  }, [participants, rotation]);
 
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
-    canvas.style.width = size + 'px';
-    canvas.style.height = size + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const darkenColor = (color: string, amount: number): string => {
+    let r = parseInt(color.slice(1, 3), 16);
+    let g = parseInt(color.slice(3, 5), 16);
+    let b = parseInt(color.slice(5, 7), 16);
 
-    const cx = size / 2;
-    const cy = size / 2;
-    const radius = Math.min(cx, cy) - 4;
+    r = Math.max(0, r - amount);
+    g = Math.max(0, g - amount);
+    b = Math.max(0, b - amount);
 
-    ctx.clearRect(0, 0, size, size);
+    return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+  };
 
-    for (let i = 0; i < segCount; i++) {
-      const start = i * segAngle + angle;
-      const end = start + segAngle;
+  const drawWheel = () => {
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext('2d')!;
+    const radius = canvas.width / 2;
+    const sliceAngle = (2 * Math.PI) / numSectors;
+
+    // Clear previous drawing
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.translate(radius, radius);
+    ctx.rotate(-rotation * (Math.PI / 180));
+
+    // Draw sectors
+    for (let i = 0; i < numSectors; i++) {
+      const startAngle = i * sliceAngle;
+      const endAngle = (i + 1) * sliceAngle;
       ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, radius, start, end);
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, radius, startAngle, endAngle);
       ctx.closePath();
-      ctx.fillStyle = segments[i].color || (i % 2 ? '#f3f4f6' : '#ef4444');
+      const color = darkenColor(colors[i % colors.length], 30);
+      ctx.fillStyle = color;
       ctx.fill();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#11182722';
-      ctx.stroke();
+
+      // Draw the name in the sector
       ctx.save();
-      ctx.translate(cx, cy);
-      const textAngle = start + segAngle / 2;
-      ctx.rotate(textAngle);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#111827';
-      ctx.font = Math.max(12, radius * 0.08) + 'px sans-serif';
-      ctx.fillText(segments[i].label, radius - 10, 4);
+      ctx.rotate((startAngle + endAngle) / 2);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'white';
+      ctx.font = '16px Arial';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 1;
+      ctx.shadowBlur = 3;
+      ctx.fillText(capitalize(participants[i]) || '', radius * 0.5, 0);
       ctx.restore();
     }
 
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * 0.18, 0, Math.PI * 2);
-    ctx.fillStyle = '#111827';
-    ctx.fill();
+    ctx.rotate(rotation * (Math.PI / 180)); // Reset rotation
+    ctx.translate(-radius, -radius);
 
+    // Draw the static indicator
+    const indicatorLength = 20;
+    const indicatorWidth = 10;
+    ctx.save();
+    ctx.translate(canvas.width, canvas.height / 2);
     ctx.beginPath();
-    ctx.moveTo(cx + 6, 8);
-    ctx.lineTo(cx - 6, 8);
-    ctx.lineTo(cx, 28);
+    ctx.moveTo(-indicatorLength, -indicatorWidth / 2);
+    ctx.lineTo(0, -indicatorWidth / 2);
+    ctx.lineTo(0, indicatorWidth / 2);
+    ctx.lineTo(-indicatorLength, indicatorWidth / 2);
     ctx.closePath();
-    ctx.fillStyle = '#111827';
+    ctx.fillStyle = 'red';
     ctx.fill();
-  }, [angle, segments, size]);
-
-  const norm = (a: number) => {
-    const two = Math.PI * 2;
-    a = a % two;
-    if (a < 0) a += two;
-    return a;
+    ctx.restore();
   };
 
-  const spin = (
-    opts: { winningIndex?: number | null; duration?: number } = {}
-  ) => {
-    if (isSpinning && disableWhileSpinning) return;
+  const startSpin = () => {
+    if (spinning) return;
+    setSpinning(true);
 
-    const winIdx =
-      typeof opts.winningIndex === 'number' ? opts.winningIndex : winningIndex;
+    // Set the number of full rotations and calculate final rotation
+    const numFullRotations = Math.random() * 5 + 5; // Between 5 and 10 full rotations
+    const totalRotation = numFullRotations * 360;
+    const finalRotation = (rotation + totalRotation) % 360;
 
-    setIsSpinning(true);
+    // Animation parameters
+    const spinDuration = 6000;
+    const easing = (t: number) => {
+      // Ease-out cubic
+      return 1 - Math.pow(1 - t, 3);
+    };
 
-    const startAngle = angle;
-    const extraTurns = 4 + Math.random() * 3;
+    let startTime: number;
 
-    let targetAngle: number;
-    if (typeof winIdx === 'number' && winIdx >= 0 && winIdx < segCount) {
-      const pointerAngle = -Math.PI / 2;
-      const segmentCenter = winIdx * segAngle + segAngle / 2;
-      targetAngle = pointerAngle - segmentCenter + extraTurns * Math.PI * 2;
-    } else {
-      targetAngle =
-        Math.random() * Math.PI * 2 + extraTurns * Math.PI * 2 - Math.PI / 2;
-    }
+    const animate = (time: number) => {
+      if (!startTime) startTime = time;
+      const elapsed = time - startTime;
+      const t = Math.min(elapsed / spinDuration, 1);
+      const easeT = easing(t);
+      const currentRotation = rotation + totalRotation * easeT;
 
-    const durationMs = opts.duration || duration;
-    const startTs = performance.now();
+      setRotation(currentRotation);
 
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-
-    const frame = (ts: number) => {
-      const p = Math.min(1, (ts - startTs) / durationMs);
-      const eased = easeOutCubic(p);
-      const curr = startAngle + (targetAngle - startAngle) * eased;
-      setAngle(curr);
-
-      if (p < 1) {
-        rafRef.current = requestAnimationFrame(frame);
+      if (elapsed < spinDuration) {
+        requestAnimationFrame(animate);
       } else {
-        setIsSpinning(false);
-        const finalNorm = norm(curr + Math.PI / 2);
-        let idx = segCount - Math.floor(finalNorm / segAngle) - 1;
-        idx = idx % segCount;
-        if (idx < 0) idx += segCount;
-        onFinish(segments[idx]);
+        setSpinning(false);
+        determineWinner(finalRotation);
       }
     };
 
-    rafRef.current = requestAnimationFrame(frame);
+    requestAnimationFrame(animate);
   };
 
-  useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
+  const determineWinner = (finalRotation: number) => {
+    const sliceAngle = 360 / numSectors;
+    const normalizedRotation = ((finalRotation % 360) + 360) % 360;
+    const winningSector = Math.floor(normalizedRotation / sliceAngle);
+
+    const winner = participants[winningSector];
+    setPopupWinner(winner);
+    onDrawSuccess(winner);
+  };
 
   return (
-    <div className="flex flex-col items-center space-y-4 z-10">
-      <div style={{ width: size }} className="relative">
-        <canvas ref={canvasRef} className="rounded-full shadow-lg" />
-      </div>
-
-      <div className="flex space-x-2">
-        <button
-          className={`px-4 py-2 rounded shadow ${
-            isSpinning
-              ? 'opacity-60 cursor-not-allowed'
-              : 'bg-green-600 text-white'
-          }`}
-          onClick={() => {
-            const idx = Math.floor(Math.random() * segCount);
-            spin({ winningIndex: idx });
-          }}
-          disabled={isSpinning && disableWhileSpinning}
-        >
-          Zakręć
-        </button>
-      </div>
-
-      <div className="text-sm text-gray-600">
-        {isSpinning ? 'Spinning...' : 'Ready'}
-      </div>
+    <div>
+      <canvas
+        ref={canvasRef}
+        width={400}
+        height={400}
+        style={{ borderRadius: '50%', border: '2px solid black' }}
+      />
+      <Button
+        onClick={startSpin}
+        disabled={participants.length === 0 || spinning}
+      >
+        Zakręć kołem
+      </Button>
     </div>
   );
-}
+};

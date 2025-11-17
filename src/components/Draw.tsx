@@ -1,6 +1,6 @@
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useDrawStep } from '../hooks/useDrawStep';
-import WheelOfFortune from './Wheel';
+import { Wheel } from './Wheel';
 
 export const Draw = () => {
   const {
@@ -18,17 +18,13 @@ export const Draw = () => {
         'flex flex-col flex-auto items-center gap-4 bg-background-color-snow pt-6'
       }
     >
-      <WheelOfFortune
-        onFinish={(segment) => onDrawSuccess(segment.value)}
-        segments={usersToDraw.map((user) => ({
-          label: user.first_name,
-          color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-          value: user.first_name,
-        }))}
+      <Wheel
+        participants={usersToDraw.map((user) => user.first_name)}
+        onDrawSuccess={onDrawSuccess}
       />
       {result && (
         <CopyToClipboard
-          text={result.gift_suggestions?.join('\n')}
+          text={result.gift_suggestions.join(',')}
           onCopy={handleCopy}
         >
           <div className="flex items-center justify-between w-full px-4 cursor-pointer z-20">

@@ -40,9 +40,9 @@ export const useDrawStep = () => {
         !(currentUser?.excluded_users ?? []).includes(user.id)
     );
 
-    while (eligibleUsers.length < 2) {
-      eligibleUsers.push(...eligibleUsers);
-    }
+    // while (eligibleUsers.length < 2) {
+    //   eligibleUsers.push(...eligibleUsers);
+    // }
 
     return eligibleUsers;
   }, [currentUser, usersToDraw]);
