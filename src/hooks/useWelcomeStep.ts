@@ -65,6 +65,8 @@ export const useWelcomeStep = () => {
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
+  console.log({ data });
+
   return {
     dropdownOpen,
     data,

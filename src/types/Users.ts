@@ -1,5 +1,6 @@
 export interface User {
   id: number;
+  family: number;
   first_name: string;
   gift_suggestions: string[];
   has_been_drawn: boolean;
