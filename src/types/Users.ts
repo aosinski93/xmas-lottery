@@ -1,3 +1,5 @@
+import { Family } from "./Family";
+
 export interface User {
   id: number;
   first_name: string;
@@ -6,4 +8,5 @@ export interface User {
   already_drew: boolean;
   draw_result: User | null;
   excluded_users: number[];
+  family: Family["id"];
 }

@@ -1,5 +1,5 @@
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { useDrawStep } from '../hooks/useDrawStep';
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { useDrawStep } from "../hooks/useDrawStep";
 
 export const Draw = () => {
   const { wheelRef, giftsRef, copySuccess, handleCopy, result } = useDrawStep();
@@ -7,19 +7,19 @@ export const Draw = () => {
   return (
     <div
       className={
-        'flex flex-col flex-auto items-center gap-4 bg-background-color-snow pt-6'
+        "flex flex-col flex-auto items-center gap-4 bg-background-color-snow pt-6"
       }
     >
       <div ref={wheelRef} id="wheel" className="shadow-lg rounded-full z-30" />
       {result && (
         <CopyToClipboard
-          text={result.gift_suggestions.join('\n')}
+          text={result.gift_suggestions?.join(", ") ?? ""}
           onCopy={handleCopy}
         >
           <div className="flex items-center justify-between w-full px-4 cursor-pointer z-20">
             <div
               className={
-                'w-full flex flex-col items-center justify-end gap-1 bg-white rounded-3xl p-6 border-2 border-santa-red-light cursor-pointer'
+                "w-full flex flex-col items-center justify-end gap-1 bg-white rounded-3xl p-6 border-2 border-santa-red-light cursor-pointer"
               }
               onClick={handleCopy}
               onKeyDown={handleCopy}
@@ -42,7 +42,7 @@ export const Draw = () => {
                 </div>
               ))}
               <small className=" mt-3 font-bold text-santa-blue">
-                {copySuccess ? 'Skopiowano!' : 'Kliknij żeby skopiować'}
+                {copySuccess ? "Skopiowano!" : "Kliknij żeby skopiować"}
               </small>
               {!result.gift_suggestions && (
                 <div className="flex items-center justify-between text-sm text-black-enough">

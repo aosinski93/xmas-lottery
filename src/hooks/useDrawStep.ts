@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useAtom, useAtomValue } from 'jotai';
-import { dataAtom, resultAtom, userAtom } from '../atoms';
-import { initializeWheel } from '../services/wheel';
-import useSetDrawResult from '../hooks/useSetDrawResult';
-import useSetDrawInProgress from '../hooks/useSetDrawInProgress';
+import { useAtom, useAtomValue } from "jotai";
+import { usersAtom, resultAtom, userAtom } from "../atoms";
+import { initializeWheel } from "../services/wheel";
+import useSetDrawResult from "../hooks/useSetDrawResult";
+import useSetDrawInProgress from "../hooks/useSetDrawInProgress";
 
 export const useDrawStep = () => {
-  const users = useAtomValue(dataAtom);
+  const users = useAtomValue(usersAtom);
   const [result, setResult] = useAtom(resultAtom);
   const currentUser = useAtomValue(userAtom);
   const usersToDraw = users.filter((user) => !user.has_been_drawn);
@@ -28,7 +28,7 @@ export const useDrawStep = () => {
         await updateUtilsTable();
       }
     },
-    [setDrawResult, setResult, updateUtilsTable, usersToDraw]
+    [setDrawResult, setResult, updateUtilsTable, usersToDraw],
   );
 
   const handleCopy = useCallback(() => {
@@ -41,7 +41,7 @@ export const useDrawStep = () => {
         .filter(
           (user) =>
             user.first_name !== currentUser?.first_name &&
-            !(currentUser?.excluded_users ?? []).includes(user.id)
+            !(currentUser?.excluded_users ?? []).includes(user.id),
         )
         .map((user) => ({ text: user.first_name }));
 

@@ -1,24 +1,30 @@
-import { useSetAtom, useAtomValue, useAtom } from 'jotai';
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { stepAtom, dataAtom, userAtom } from '../atoms';
-import { supabase } from '../services/supabase';
-import { Utils } from '../types/Utils';
-import useSetDrawInProgress from './useSetDrawInProgress';
-import { User } from '../types/Users';
+import { useSetAtom, useAtomValue, useAtom } from "jotai";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { stepAtom, usersAtom, userAtom } from "../atoms";
+import { supabase } from "../services/supabase";
+import { Utils } from "../types/Utils";
+import useSetDrawInProgress from "./useSetDrawInProgress";
+import { User } from "../types/Users";
+import { useFamilyId } from "./useFamilyId";
 
 export const useWelcomeStep = () => {
+  const familyId = useFamilyId();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const setStep = useSetAtom(stepAtom);
-  const data = useAtomValue(dataAtom);
+  const users = useAtomValue(usersAtom);
   const [currentUser, setUser] = useAtom(userAtom);
   const [loading, setLoading] = useState(false);
-  const [drawInProgress, setDrawInProgress] = useState(true);
+  const [drawInProgress, setDrawInProgress] = useState(false);
   const [drawingUser, setDrawingUser] = useState<string | null>(null);
 
   const { setDrawInProgressTrue: updateUtilsTable } = useSetDrawInProgress();
 
   const fetchUtils = useCallback(async () => {
-    const { data } = await supabase.from<Utils>('utils').select('*');
+    const { data } = await supabase
+      .from<Utils>("utils")
+      .select("*")
+      .eq("family", familyId);
+
     if (data?.length) {
       setDrawInProgress(data[0].draw_in_progress);
       setDrawingUser(data[0].user_drawing);
@@ -29,8 +35,8 @@ export const useWelcomeStep = () => {
     fetchUtils();
 
     const mySubscription = supabase
-      .from('utils')
-      .on('*', (payload) => {
+      .from<Utils>("utils")
+      .on("*", (payload) => {
         setDrawInProgress(payload.new.draw_in_progress);
         setDrawingUser(payload.new.user_drawing);
       })
@@ -55,19 +61,19 @@ export const useWelcomeStep = () => {
 
   const isFemale = useMemo(() => {
     return (
-      currentUser?.first_name.charAt(currentUser.first_name.length - 1) === 'a'
+      currentUser?.first_name.charAt(currentUser.first_name.length - 1) === "a"
     );
   }, [currentUser]);
 
   const loadingText = `Poczekaj, sprawdzamy czy ${
-    isFemale ? 'byłaś' : 'byłeś'
-  } ${isFemale ? 'grzeczna' : 'grzeczny'}...`;
+    isFemale ? "byłaś" : "byłeś"
+  } ${isFemale ? "grzeczna" : "grzeczny"}...`;
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   return {
     dropdownOpen,
-    data,
+    users,
     loading,
     loadingText,
     drawInProgress,
