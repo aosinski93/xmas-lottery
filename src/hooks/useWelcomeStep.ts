@@ -17,7 +17,7 @@ export const useWelcomeStep = () => {
   const [drawInProgress, setDrawInProgress] = useState(false);
   const [drawingUser, setDrawingUser] = useState<string | null>(null);
 
-  const { setDrawInProgressTrue: updateUtilsTable } = useSetDrawInProgress();
+  const { setDrawInProgressTrue } = useSetDrawInProgress();
 
   const fetchUtils = useCallback(async () => {
     const { data } = await supabase
@@ -37,6 +37,7 @@ export const useWelcomeStep = () => {
     const mySubscription = supabase
       .from<Utils>("utils")
       .on("*", (payload) => {
+        console.log({ payload });
         setDrawInProgress(payload.new.draw_in_progress);
         setDrawingUser(payload.new.user_drawing);
       })
@@ -51,9 +52,10 @@ export const useWelcomeStep = () => {
     const timeout = Math.random() * 5000 + 1;
     setLoading(true);
     setUser(user);
-    setTimeout(async () => {
-      await updateUtilsTable(user.first_name);
-      setDropdownOpen(false);
+    setDrawInProgressTrue(user.first_name);
+    setDropdownOpen(false);
+
+    setTimeout(() => {
       setStep(2);
       setLoading(false);
     }, timeout);

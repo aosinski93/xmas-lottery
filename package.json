@@ -4,12 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@craco/craco": "^6.4.2",
     "@supabase/supabase-js": "^1.28.5",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-copy-to-clipboard": "^5.0.2",
@@ -20,8 +15,7 @@
     "react": "^17.0.2",
     "react-copy-to-clipboard": "^5.0.4",
     "react-dom": "^17.0.2",
-    "typescript": "^5.3.3",
-    "web-vitals": "^1.0.1"
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "build": "vite build",

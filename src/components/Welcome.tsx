@@ -1,4 +1,5 @@
 import { useWelcomeStep } from "../hooks/useWelcomeStep";
+import { resetUsersTable } from "../services/supabase";
 
 export const Welcome = () => {
   const {
@@ -59,6 +60,10 @@ export const Welcome = () => {
               </li>
             ))}
         </ul>
+      )}
+
+      {window.location.origin === "http://localhost:5173" && (
+        <button onClick={() => resetUsersTable()}>reset</button>
       )}
     </div>
   );
