@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  xmas-lottery:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: xmas-lottery-app
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - xmas-lottery-network
+
+  # Optional: Development service for hot reloading during development
+  xmas-lottery-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: xmas-lottery-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: yarn dev --host 0.0.0.0
+    networks:
+      - xmas-lottery-network
+    profiles:
+      - dev
+
+networks:
+  xmas-lottery-network:
+    driver: bridge
+
+volumes:
+  node_modules:
