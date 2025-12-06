@@ -1,11 +1,11 @@
-import { useSetAtom, useAtomValue, useAtom } from "jotai";
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { stepAtom, usersAtom, userAtom } from "../atoms";
-import { supabase } from "../services/supabase";
-import { Utils } from "../types/Utils";
-import useSetDrawInProgress from "./useSetDrawInProgress";
-import { User } from "../types/Users";
-import { useFamilyId } from "./useFamilyId";
+import { useSetAtom, useAtomValue, useAtom } from 'jotai';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { stepAtom, usersAtom, userAtom } from '../atoms';
+import { supabase } from '../services/supabase';
+import { Utils } from '../types/Utils';
+import useSetDrawInProgress from './useSetDrawInProgress';
+import { User } from '../types/Users';
+import { useFamilyId } from './useFamilyId';
 
 export const useWelcomeStep = () => {
   const familyId = useFamilyId();
@@ -21,9 +21,9 @@ export const useWelcomeStep = () => {
 
   const fetchUtils = useCallback(async () => {
     const { data } = await supabase
-      .from<Utils>("utils")
-      .select("*")
-      .eq("family", familyId);
+      .from<Utils>('utils')
+      .select('*')
+      .eq('family', familyId);
 
     if (data?.length) {
       setDrawInProgress(data[0].draw_in_progress);
@@ -35,9 +35,8 @@ export const useWelcomeStep = () => {
     fetchUtils();
 
     const mySubscription = supabase
-      .from<Utils>("utils")
-      .on("*", (payload) => {
-        console.log({ payload });
+      .from<Utils>('utils')
+      .on('*', (payload) => {
         setDrawInProgress(payload.new.draw_in_progress);
         setDrawingUser(payload.new.user_drawing);
       })
@@ -63,13 +62,13 @@ export const useWelcomeStep = () => {
 
   const isFemale = useMemo(() => {
     return (
-      currentUser?.first_name.charAt(currentUser.first_name.length - 1) === "a"
+      currentUser?.first_name.charAt(currentUser.first_name.length - 1) === 'a'
     );
   }, [currentUser]);
 
   const loadingText = `Poczekaj, sprawdzamy czy ${
-    isFemale ? "byłaś" : "byłeś"
-  } ${isFemale ? "grzeczna" : "grzeczny"}...`;
+    isFemale ? 'byłaś' : 'byłeś'
+  } ${isFemale ? 'grzeczna' : 'grzeczny'}...`;
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
