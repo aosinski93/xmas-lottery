@@ -43,6 +43,7 @@ export type Database = {
           gift_suggestions: string[] | null;
           has_been_drawn: boolean | null;
           id: number;
+          updated_at: string;
         };
         Insert: {
           already_drew?: boolean | null;
@@ -54,6 +55,7 @@ export type Database = {
           gift_suggestions?: string[] | null;
           has_been_drawn?: boolean | null;
           id?: number;
+          updated_at?: string;
         };
         Update: {
           already_drew?: boolean | null;
@@ -65,6 +67,7 @@ export type Database = {
           gift_suggestions?: string[] | null;
           has_been_drawn?: boolean | null;
           id?: number;
+          updated_at?: string;
         };
         Relationships: [];
       };

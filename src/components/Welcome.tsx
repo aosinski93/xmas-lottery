@@ -1,5 +1,5 @@
-import { useWelcomeStep } from "../hooks/useWelcomeStep";
-import { resetUsersTable } from "../services/supabase";
+import { useWelcomeStep } from '../hooks/useWelcomeStep';
+import { resetUsersTable } from '../services/supabase';
 
 export const Welcome = () => {
   const {
@@ -12,6 +12,8 @@ export const Welcome = () => {
     toggleDropdown,
     handleSetUser,
   } = useWelcomeStep();
+
+  const usersOptions = users.filter((user) => !user.already_drew);
 
   if (loading) {
     return (
@@ -30,9 +32,11 @@ export const Welcome = () => {
       ) : (
         <button
           className="py-2 px-6 rounded-full uppercase bg-santa-red-darker text-sm font-extrabold tracking-wider text-white z-10"
-          onClick={toggleDropdown}
+          onClick={usersOptions.length === 0 ? () => ({}) : toggleDropdown}
         >
-          zacznij tutaj
+          {usersOptions.length === 0
+            ? 'Wszyscy użytkownicy już losowali'
+            : 'Wybierz swoje imię z listy'}
         </button>
       )}
 
@@ -40,30 +44,21 @@ export const Welcome = () => {
         <ul
           className={`mt-2 w-64 border-santa-red-darker  bg-gray-100 rounded-lg max-w-6xl mx-auto shadow-md z-10 ${
             dropdownOpen
-              ? "h-full max-h-96 overflow-y-auto border"
-              : "h-0 overflow-hidden"
+              ? 'h-full max-h-96 overflow-y-auto border'
+              : 'h-0 overflow-hidden'
           }`}
         >
-          <li className="text-santa-red-darker m-2 py-2 rounded-lg">
-            Wybierz swoje imię
-          </li>
-          {users
-            .filter((user) => !user.already_drew)
-            .map((user) => (
-              <li
-                key={user.id}
-                onKeyDown={() => handleSetUser(user)}
-                onClick={() => handleSetUser(user)}
-                className="hover:bg-gray-400 cursor-pointer m-4 py-1 rounded-lg text-black-enough"
-              >
-                {user.first_name}
-              </li>
-            ))}
+          {usersOptions.map((user) => (
+            <li
+              key={user.id}
+              onKeyDown={() => handleSetUser(user)}
+              onClick={() => handleSetUser(user)}
+              className="hover:bg-gray-400 cursor-pointer m-4 py-1 rounded-lg text-black-enough"
+            >
+              {user.first_name}
+            </li>
+          ))}
         </ul>
-      )}
-
-      {window.location.origin === "http://localhost:5173" && (
-        <button onClick={() => resetUsersTable()}>reset</button>
       )}
     </div>
   );

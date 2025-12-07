@@ -11,7 +11,7 @@ export const useWelcomeStep = () => {
   const familyId = useFamilyId();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const setStep = useSetAtom(stepAtom);
-  const users = useAtomValue(usersAtom);
+  const users: User[] = useAtomValue(usersAtom);
   const [currentUser, setUser] = useAtom(userAtom);
   const [loading, setLoading] = useState(false);
   const [drawInProgress, setDrawInProgress] = useState(false);
