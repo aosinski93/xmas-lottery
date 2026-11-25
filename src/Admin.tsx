@@ -1,37 +1,13 @@
-import { useEffect, useState } from 'react';
-
-import {
-  resetUsersTable,
-  resetUtilsTable,
-  supabase,
-} from './services/supabase';
-import { User } from './types/database.types';
-import { Utils } from './types/Utils';
-import { Family } from './types/Family';
+import { useState } from 'react';
+import { useLotteryData } from './contexts/lottery-data-context';
+import { User } from './types/users';
+import { Utils } from './types/utils';
+import { Family } from './types/family';
 
 const tabs = [
   { key: 'users', label: 'Użytkownicy' },
   { key: 'utils', label: 'Narzędzia' },
 ];
-
-const fetchAllUsers = async (): Promise<User[]> =>
-  supabase
-    .from<User>('users')
-    .select('*')
-    .order('updated_at', { ascending: false })
-    .then(({ data }) => data || []);
-
-const fetchUtilsData = async (): Promise<any> =>
-  supabase
-    .from<Utils>('utils')
-    .select('*')
-    .then(({ data }) => data || []);
-
-const fetchFamilies = async (): Promise<Family[]> =>
-  supabase
-    .from<Family>('families')
-    .select('*')
-    .then(({ data }) => data || []);
 
 const EditUserModal = ({
   user,
@@ -40,7 +16,11 @@ const EditUserModal = ({
   user: User;
   closeModal: () => void;
 }) => {
+  const { updateUser } = useLotteryData();
+
   const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!user.id) {
       return;
     }
@@ -50,16 +30,11 @@ const EditUserModal = ({
       .getAll('suggestion')
       .filter(Boolean) as string[];
     const name = formData.get('first_name') as string;
-    e.preventDefault();
-    // Logic to add gift suggestion for userId
     try {
-      await supabase
-        .from<User>('users')
-        .update({
-          gift_suggestions: suggestions,
-          ...(name && { first_name: name }),
-        })
-        .eq('id', user.id);
+      await updateUser(user.id, {
+        gift_suggestions: suggestions,
+        ...(name && { first_name: name }),
+      });
 
       closeModal();
     } catch (error) {
@@ -103,6 +78,7 @@ const EditUserModal = ({
         </div>
         <div className="flex space-x-4 justify-end">
           <button
+            type="button"
             className="px-4 py-2 bg-red-500 text-white rounded"
             onClick={closeModal}
           >
@@ -122,36 +98,19 @@ const EditUserModal = ({
 
 export default function Admin() {
   const [tab, setTab] = useState<'users' | 'utils'>('users');
-  const [users, setUsers] = useState<User[]>([]);
-  const [utils, setUtils] = useState<Utils[]>([]);
-  const [families, setFamilies] = useState<Family[]>([]);
+  const {
+    users,
+    utils,
+    families,
+    loading,
+    error,
+    resetUsers,
+    resetUtils,
+  } = useLotteryData();
 
-  useEffect(() => {
-    fetchAllUsers().then(setUsers).catch(console.error);
-    fetchUtilsData().then(setUtils).catch(console.error);
-    fetchFamilies().then(setFamilies).catch(console.error);
-
-    supabase
-      .from<User>('users')
-      .on('*', () => {
-        fetchAllUsers().then(setUsers).catch(console.error);
-      })
-      .subscribe();
-
-    supabase
-      .from<Utils>('utils')
-      .on('*', () => {
-        fetchUtilsData().then(setUtils).catch(console.error);
-      })
-      .subscribe();
-
-    supabase
-      .from<Family>('families')
-      .on('*', () => {
-        fetchFamilies().then(setFamilies).catch(console.error);
-      })
-      .subscribe();
-  }, []);
+  if (loading) {
+    return <p className="p-8 text-center">Ładowanie danych...</p>;
+  }
 
   return (
     <div className="flex flex-col text-center h-screen font-sans">
@@ -171,6 +130,12 @@ export default function Admin() {
         ))}
       </div>
 
+      {error && (
+        <p className="mx-8 mt-4 text-red-500" role="alert">
+          {error}
+        </p>
+      )}
+
       {tab === 'users' && (
         <UserList users={users} utils={utils} families={families} />
       )}
@@ -181,7 +146,12 @@ export default function Admin() {
           <button
             className="px-4 py-2 bg-red-500 text-white rounded"
             onClick={async () => {
-              await resetUsersTable();
+              try {
+                await resetUsers();
+                alert('success');
+              } catch (resetError) {
+                console.error('Unable to reset users', resetError);
+              }
             }}
           >
             Zresetuj tabelę users
@@ -192,9 +162,12 @@ export default function Admin() {
             <button
               className="ml-4 px-4 py-2 bg-red-500 text-white rounded"
               onClick={async () => {
-                const res = await resetUtilsTable(1);
-
-                alert(res);
+                try {
+                  await resetUtils(1);
+                  alert('success');
+                } catch (resetError) {
+                  console.error('Unable to reset utils', resetError);
+                }
               }}
             >
               Zresetuj tabelę utils dla rodziny Liśkiewiczów
@@ -202,9 +175,12 @@ export default function Admin() {
             <button
               className="ml-4 px-4 py-2 bg-red-500 text-white rounded"
               onClick={async () => {
-                const res = await resetUtilsTable(2);
-
-                alert(res);
+                try {
+                  await resetUtils(2);
+                  alert('success');
+                } catch (resetError) {
+                  console.error('Unable to reset utils', resetError);
+                }
               }}
             >
               Zresetuj tabelę utils dla rodziny Osińskich
@@ -256,6 +232,7 @@ function UserListItem({
             className="h-5 w-5 inline"
             viewBox="0 0 20 20"
             fill="currentColor"
+            aria-hidden="true"
           >
             {/* pencil */}
             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />

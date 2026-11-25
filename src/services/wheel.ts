@@ -4,6 +4,7 @@ interface DataObject {
   text: string;
   chance?: number;
 }
+
 export interface InitializeWheelParams {
   data: DataObject[];
   config?: {
@@ -33,7 +34,7 @@ export const initializeWheel = ({ data, config }: InitializeWheelParams) => {
       prize: '#F68080',
       button: '#E56161',
       prizeFont: '#FFFFFF',
-      buttonFont: '#black-enough'
-    }
+      buttonFont: '#black-enough',
+    },
   });
 };

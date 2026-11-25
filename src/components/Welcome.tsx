@@ -1,5 +1,4 @@
-import { useWelcomeStep } from '../hooks/useWelcomeStep';
-import { resetUsersTable } from '../services/supabase';
+import { useWelcomeStep } from '../hooks/use-welcome-step';
 
 export const Welcome = () => {
   const {
@@ -14,11 +13,14 @@ export const Welcome = () => {
   } = useWelcomeStep();
 
   const usersOptions = users.filter((user) => !user.already_drew);
+  const drawUnavailable = usersOptions.length === 0;
 
   if (loading) {
     return (
       <div className="flex flex-col flex-auto items-center gap-4 bg-background-color-snow pt-6">
-        <div className="py-16">{loadingText}</div>
+        <div className="py-16" role="status">
+          {loadingText}
+        </div>
       </div>
     );
   }
@@ -31,10 +33,14 @@ export const Welcome = () => {
         )
       ) : (
         <button
+          type="button"
           className="py-2 px-6 rounded-full uppercase bg-santa-red-darker text-sm font-extrabold tracking-wider text-white z-10"
-          onClick={usersOptions.length === 0 ? () => ({}) : toggleDropdown}
+          onClick={toggleDropdown}
+          disabled={drawUnavailable}
+          aria-expanded={dropdownOpen}
+          aria-controls="users-list"
         >
-          {usersOptions.length === 0
+          {drawUnavailable
             ? 'Wszyscy użytkownicy już losowali'
             : 'Wybierz swoje imię z listy'}
         </button>
@@ -42,6 +48,9 @@ export const Welcome = () => {
 
       {!drawInProgress && (
         <ul
+          id="users-list"
+          aria-label="Użytkownicy"
+          hidden={!dropdownOpen}
           className={`mt-2 w-64 border-santa-red-darker  bg-gray-100 rounded-lg max-w-6xl mx-auto shadow-md z-10 ${
             dropdownOpen
               ? 'h-full max-h-96 overflow-y-auto border'
@@ -49,13 +58,14 @@ export const Welcome = () => {
           }`}
         >
           {usersOptions.map((user) => (
-            <li
-              key={user.id}
-              onKeyDown={() => handleSetUser(user)}
-              onClick={() => handleSetUser(user)}
-              className="hover:bg-gray-400 cursor-pointer m-4 py-1 rounded-lg text-black-enough"
-            >
-              {user.first_name}
+            <li key={user.id} className="m-4">
+              <button
+                type="button"
+                onClick={() => handleSetUser(user)}
+                className="w-full py-1 rounded-lg text-black-enough hover:bg-gray-400 focus-visible:bg-gray-400"
+              >
+                {user.first_name}
+              </button>
             </li>
           ))}
         </ul>

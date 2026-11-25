@@ -1,8 +1,13 @@
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { useDrawStep } from '../hooks/useDrawStep';
+import { useDrawStep } from '../hooks/use-draw-step';
 
 export const Draw = () => {
-  const { wheelRef, giftsRef, copySuccess, handleCopy, result } = useDrawStep();
+  const {
+    wheelRef,
+    copySuccess,
+    handleCopy,
+    result,
+    hasCandidates,
+  } = useDrawStep();
 
   return (
     <div
@@ -11,20 +16,20 @@ export const Draw = () => {
       }
     >
       <div ref={wheelRef} id="wheel" className="shadow-lg rounded-full z-30" />
+      {!hasCandidates && !result && (
+        <p className="z-20" role="status">
+          Brak osób dostępnych do losowania.
+        </p>
+      )}
       {result && (
-        <CopyToClipboard
-          text={result.gift_suggestions?.join(', ') ?? ''}
-          onCopy={handleCopy}
+        <button
+          type="button"
+          className="flex items-center justify-between w-full px-4 cursor-pointer z-20"
+          onClick={handleCopy}
         >
-          <div className="flex items-center justify-between w-full px-4 cursor-pointer z-20">
-            <div
-              className={
-                'w-full flex flex-col items-center justify-end gap-1 bg-white rounded-3xl p-6 border-2 border-santa-red-light cursor-pointer'
-              }
-              onClick={handleCopy}
-              onKeyDown={handleCopy}
-              ref={giftsRef}
-            >
+          <span
+            className="w-full flex flex-col items-center justify-end gap-1 bg-white rounded-3xl p-6 border-2 border-santa-red-light"
+          >
               <div className="flex justify-center items-center p-6 h-12 rounded-full bg-santa-blue text-sm font-extrabold text-black-enough">
                 {result?.first_name}
               </div>
@@ -52,9 +57,8 @@ export const Draw = () => {
                   </span>
                 </div>
               )}
-            </div>
-          </div>
-        </CopyToClipboard>
+          </span>
+        </button>
       )}
     </div>
   );
