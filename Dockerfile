@@ -1,5 +1,5 @@
 # 1. Build React app
-FROM node:18 AS builder
+FROM node:24 AS builder
 WORKDIR /app
 COPY package*.json .
 RUN yarn install
