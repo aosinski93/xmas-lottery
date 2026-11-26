@@ -2,12 +2,12 @@ version: '3.8'
 
 services:
   xmas-lottery:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: xmas-lottery-app
     ports:
-      - "3000:80"
+      - '555:80'
     environment:
       - NODE_ENV=production
     restart: unless-stopped
@@ -16,13 +16,13 @@ services:
 
   # Optional: Development service for hot reloading during development
   xmas-lottery-dev:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
       target: builder
     container_name: xmas-lottery-dev
     ports:
-      - "5173:5173"
+      - '5173:5173'
     volumes:
       - .:/app
       - /app/node_modules
