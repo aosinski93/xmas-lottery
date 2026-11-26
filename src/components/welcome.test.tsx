@@ -15,6 +15,7 @@ const baseState: ReturnType<typeof useWelcomeStep> = {
   loadingText: '',
   drawInProgress: false,
   drawingUser: null,
+  hasUsersWithoutGiftSuggestions: false,
   toggleDropdown: vi.fn(),
   handleSetUser: vi.fn(),
 };
@@ -46,7 +47,7 @@ describe('Welcome', () => {
     expect(
       screen.getByRole('button', {
         name: 'Wszyscy użytkownicy już losowali',
-      })
+      }),
     ).toBeDisabled();
   });
 
@@ -60,5 +61,20 @@ describe('Welcome', () => {
     render(<Welcome />);
 
     expect(screen.getByRole('status')).toHaveTextContent('Poczekaj...');
+  });
+
+  it('indicates when there are users without gift suggestions', () => {
+    mockedUseWelcomeStep.mockReturnValue({
+      ...baseState,
+      hasUsersWithoutGiftSuggestions: true,
+    });
+
+    render(<Welcome />);
+
+    expect(
+      screen.getByText(
+        'Niektórzy użytkownicy nie dodali jeszcze propozycji prezentów.',
+      ),
+    ).toBeInTheDocument();
   });
 });

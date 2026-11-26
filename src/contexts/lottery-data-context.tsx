@@ -20,10 +20,12 @@ type LotteryDataContextValue = {
   error: string | null;
   refresh: () => Promise<void>;
   updateUser: (id: number, changes: Partial<User>) => Promise<void>;
+  addUser: (user: Partial<User>) => Promise<void>;
+  deleteUser: (id: number) => Promise<void>;
   setDrawInProgress: (
     family: number,
     drawInProgress: boolean,
-    userDrawing: string | null
+    userDrawing: string | null,
   ) => Promise<void>;
   recordDrawResult: (currentUser: User, drawnUser: User) => Promise<void>;
   resetUsers: () => Promise<void>;
@@ -86,7 +88,7 @@ export const LotteryDataProvider = ({ children }: { children: ReactNode }) => {
         setError(getErrorMessage(refreshError));
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -115,24 +117,42 @@ export const LotteryDataProvider = ({ children }: { children: ReactNode }) => {
         await lotteryRepository.updateUser(id, changes);
         await refreshTable('users');
       }),
-    [refreshTable, run]
+    [refreshTable, run],
+  );
+
+  const addUser = useCallback(
+    async (user: Partial<User>) =>
+      run(async () => {
+        await lotteryRepository.addUser(user);
+        await refreshTable('users');
+      }),
+    [refreshTable, run],
+  );
+
+  const deleteUser = useCallback(
+    async (id: number) =>
+      run(async () => {
+        await lotteryRepository.deleteUser(id);
+        await refreshTable('users');
+      }),
+    [refreshTable, run],
   );
 
   const setDrawInProgress = useCallback(
     async (
       family: number,
       drawInProgress: boolean,
-      userDrawing: string | null
+      userDrawing: string | null,
     ) =>
       run(async () => {
         await lotteryRepository.setDrawInProgress(
           family,
           drawInProgress,
-          userDrawing
+          userDrawing,
         );
         await refreshTable('utils');
       }),
-    [refreshTable, run]
+    [refreshTable, run],
   );
 
   const recordDrawResult = useCallback(
@@ -141,7 +161,7 @@ export const LotteryDataProvider = ({ children }: { children: ReactNode }) => {
         await lotteryRepository.recordDrawResult(currentUser, drawnUser);
         await refreshTable('users');
       }),
-    [refreshTable, run]
+    [refreshTable, run],
   );
 
   const resetUsers = useCallback(
@@ -150,7 +170,7 @@ export const LotteryDataProvider = ({ children }: { children: ReactNode }) => {
         await lotteryRepository.resetUsers();
         await refreshTable('users');
       }),
-    [refreshTable, run]
+    [refreshTable, run],
   );
 
   const resetUtils = useCallback(
@@ -159,7 +179,7 @@ export const LotteryDataProvider = ({ children }: { children: ReactNode }) => {
         await lotteryRepository.resetUtils(family);
         await refreshTable('utils');
       }),
-    [refreshTable, run]
+    [refreshTable, run],
   );
 
   const value = useMemo(
@@ -173,8 +193,10 @@ export const LotteryDataProvider = ({ children }: { children: ReactNode }) => {
       updateUser,
       setDrawInProgress,
       recordDrawResult,
+      addUser,
       resetUsers,
       resetUtils,
+      deleteUser,
     }),
     [
       error,
@@ -182,13 +204,15 @@ export const LotteryDataProvider = ({ children }: { children: ReactNode }) => {
       loading,
       recordDrawResult,
       refresh,
+      addUser,
       resetUsers,
       resetUtils,
+      deleteUser,
       setDrawInProgress,
       updateUser,
       users,
       utils,
-    ]
+    ],
   );
 
   return (

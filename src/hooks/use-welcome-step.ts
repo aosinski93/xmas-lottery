@@ -1,7 +1,6 @@
 import { useSetAtom, useAtom } from 'jotai';
 import { useState, useMemo } from 'react';
-import { stepAtom, userAtom } from '../atoms';
-import useSetDrawInProgress from './use-set-draw-in-progress';
+import { stepAtom, StepName, userAtom } from '../atoms';
 import { User } from '../types/users';
 import { useFamilyId } from './use-family-id';
 import { useLotteryData } from '../contexts/lottery-data-context';
@@ -11,28 +10,32 @@ export const useWelcomeStep = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const setStep = useSetAtom(stepAtom);
   const { users: allUsers, utils, loading: dataLoading } = useLotteryData();
-  const users = allUsers.filter((user) => user.family === Number(familyId));
+  const currentFamilyUsers = allUsers.filter(
+    (user) => user.family === Number(familyId),
+  );
   const familyUtils = utils.find((item) => item.family === Number(familyId));
   const [currentUser, setUser] = useAtom(userAtom);
   const [loading, setLoading] = useState(false);
+  const usersWithoutGiftSuggestions = currentFamilyUsers.filter(
+    (user) => !user.gift_suggestions?.length,
+  );
 
-  const { setDrawInProgressTrue } = useSetDrawInProgress();
+  const hasUsersWithoutGiftSuggestions = usersWithoutGiftSuggestions.length > 0;
 
-  const handleSetUser = async (user: User) => {
+  const handleSetUser = (user: User) => {
+    if (!user.gift_suggestions.length) {
+      setUser(user);
+      setDropdownOpen(false);
+      return setStep(StepName.gift_entry);
+    }
+
     const timeout = Math.random() * 5000 + 1;
     setLoading(true);
     setUser(user);
-    try {
-      await setDrawInProgressTrue(user.first_name);
-      setDropdownOpen(false);
-
-      setTimeout(() => {
-        setStep(2);
-        setLoading(false);
-      }, timeout);
-    } catch {
+    setTimeout(() => {
       setLoading(false);
-    }
+      setStep(StepName.draw);
+    }, timeout);
   };
 
   const isFemale = useMemo(() => {
@@ -49,7 +52,10 @@ export const useWelcomeStep = () => {
 
   return {
     dropdownOpen,
-    users,
+    users: hasUsersWithoutGiftSuggestions
+      ? usersWithoutGiftSuggestions
+      : currentFamilyUsers,
+    hasUsersWithoutGiftSuggestions,
     loading: loading || dataLoading,
     loadingText,
     drawInProgress: familyUtils?.draw_in_progress ?? false,

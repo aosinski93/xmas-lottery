@@ -1,10 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { lotteryRepository } from '../services/supabase';
-import {
-  LotteryDataProvider,
-  useLotteryData,
-} from './lottery-data-context';
+import { LotteryDataProvider, useLotteryData } from './lottery-data-context';
 
 vi.mock('../services/supabase', () => ({
   lotteryRepository: {
@@ -16,6 +13,8 @@ vi.mock('../services/supabase', () => ({
     recordDrawResult: vi.fn(),
     resetUsers: vi.fn(),
     resetUtils: vi.fn(),
+    deleteUser: vi.fn(),
+    addUser: vi.fn(),
     subscribe: vi.fn(() => ({ unsubscribe: vi.fn() })),
   },
 }));
@@ -27,7 +26,9 @@ const DataConsumer = () => {
     return <span>loading</span>;
   }
 
-  return <span>{error ?? users.map((user) => user.first_name).join(', ')}</span>;
+  return (
+    <span>{error ?? users.map((user) => user.first_name).join(', ')}</span>
+  );
 };
 
 describe('LotteryDataProvider', () => {
@@ -52,7 +53,7 @@ describe('LotteryDataProvider', () => {
     render(
       <LotteryDataProvider>
         <DataConsumer />
-      </LotteryDataProvider>
+      </LotteryDataProvider>,
     );
 
     expect(screen.getByText('loading')).toBeInTheDocument();

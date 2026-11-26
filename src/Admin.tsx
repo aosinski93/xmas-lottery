@@ -96,17 +96,61 @@ const EditUserModal = ({
   );
 };
 
+const AddUserModal = ({ closeModal }: { closeModal: () => void }) => {
+  const { addUser } = useLotteryData();
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const first_name = formData.get('first_name') as string;
+
+    try {
+      await addUser({
+        first_name,
+      });
+      closeModal();
+    } catch (error) {
+      console.error('Error adding user:', error);
+    }
+  };
+
+  return (
+    <form className="flex flex-col" onSubmit={onSubmit} autoComplete="off">
+      <label htmlFor="first_name" className="self-start">
+        Imię użytkownika:
+      </label>
+      <input
+        id="first_name"
+        name="first_name"
+        type="text"
+        placeholder="Imię użytkownika"
+        className="border p-2 rounded"
+      />
+
+      <div className="flex space-x-4 justify-end">
+        <button
+          type="button"
+          className="px-4 py-2 bg-red-500 text-white rounded"
+          onClick={closeModal}
+        >
+          Zamknij
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Zapisz
+        </button>
+      </div>
+    </form>
+  );
+};
+
 export default function Admin() {
   const [tab, setTab] = useState<'users' | 'utils'>('users');
-  const {
-    users,
-    utils,
-    families,
-    loading,
-    error,
-    resetUsers,
-    resetUtils,
-  } = useLotteryData();
+  const { users, utils, families, loading, error, resetUsers, resetUtils } =
+    useLotteryData();
 
   if (loading) {
     return <p className="p-8 text-center">Ładowanie danych...</p>;
@@ -123,7 +167,7 @@ export default function Admin() {
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-200 text-gray-700'
             }`}
-            onClick={() => setTab(t.key as 'users')}
+            onClick={() => setTab(t.key as 'users' | 'utils')}
           >
             {t.label}
           </button>
@@ -204,10 +248,13 @@ function UserListItem({
   setSelectedUser,
 }: UserListItemProps) {
   const { id, first_name, draw_result, gift_suggestions } = user;
+
+  const { deleteUser } = useLotteryData();
+
   return (
     <li
       key={id}
-      className="border-b py-2 grid grid-cols-5 grid-rows-1 gap-4"
+      className="border-b py-2 grid grid-cols-5 grid-rows-1 gap-4 flex items-center"
       data-id={id}
     >
       <div className="">{first_name}</div>
@@ -219,9 +266,10 @@ function UserListItem({
           ))}
         </ol>
       </div>
-      <div className="w-1/4">
+
+      <div className="flex gap-2 items-center">
         <button
-          className="mt-2 px-2 py-1 bg-green-500 text-white rounded text-sm"
+          className="px-2 py-1 bg-green-500 text-white rounded text-sm"
           onClick={() => {
             setShowModal(true);
             setSelectedUser(user);
@@ -234,11 +282,36 @@ function UserListItem({
             fill="currentColor"
             aria-hidden="true"
           >
-            {/* pencil */}
             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
             <path
               fillRule="evenodd"
               d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+
+        <button
+          className="px-2 py-1 bg-red-500 text-white rounded text-sm"
+          onClick={async () => {
+            try {
+              await deleteUser(user.id);
+              alert('success');
+            } catch (deleteError) {
+              console.error('Unable to delete user', deleteError);
+            }
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 inline"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M6 2a1 1 0 00-1 1v1H3a1 1 0 100 2h1v10a2 2 0 002 2h6a2 2 0 002-2V6h1a1 1 0 100-2h-2V3a1 1 0 00-1-1H6zm2 4a1 1 0 012 0v8a1 1 0 11-2 0V6zm4 0a1 1 0 10-2 0v8a1 1 0 102 0V6z"
               clipRule="evenodd"
             />
           </svg>
@@ -267,13 +340,21 @@ function UserList({
   const [selectedFamily, setSelectedFamily] = useState<Family['id']>(1);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const filteredUsers = users.filter(
-    (user) => selectedFamily === 0 || user.family === selectedFamily
+    (user) => selectedFamily === 0 || user.family === selectedFamily,
   );
 
   return (
     <>
+      {showAddModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black ">
+          <div className="bg-white p-6 rounded shadow-md w-1/2">
+            <AddUserModal closeModal={() => setShowAddModal(false)} />
+          </div>
+        </div>
+      )}
       {showModal && selectedUser && (
         <div className="fixed inset-0 flex items-center justify-center bg-black ">
           <div className="bg-white p-6 rounded shadow-md w-1/2">
@@ -310,6 +391,14 @@ function UserList({
                 <span>{family.name}</span>
               </label>
             ))}
+          </div>
+          <div className="flex justify-end mb-4">
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={() => setShowAddModal(true)}
+            >
+              Dodaj użytkownika
+            </button>
           </div>
           <ul className="mt-4">
             <div className="grid grid-cols-5 grid-rows-1 gap-4 font-bold border-b pb-2 mb-2">
@@ -348,7 +437,7 @@ function UserList({
                 <p>
                   {filteredUsers.every(
                     (user) =>
-                      user.gift_suggestions && user.gift_suggestions.length > 0
+                      user.gift_suggestions && user.gift_suggestions.length > 0,
                   )
                     ? positiveSpan()
                     : negativeSpan()}
@@ -373,7 +462,7 @@ function UserList({
                 <p>czy ktoś przypadkiem wylosował samego siebie?</p>
                 <p>
                   {filteredUsers.some(
-                    (user) => (user.draw_result as User)?.id === user.id
+                    (user) => (user.draw_result as User)?.id === user.id,
                   )
                     ? negativeSpan('tak!')
                     : positiveSpan('nie')}
@@ -387,7 +476,7 @@ function UserList({
                       .filter(
                         (u) =>
                           u.family ===
-                          families.find((f) => f.name === 'Osińscy')?.id
+                          families.find((f) => f.name === 'Osińscy')?.id,
                       )
                       .every((u) => u.has_been_drawn && u.already_drew)
                       ? positiveSpan()
@@ -404,7 +493,7 @@ function UserList({
                       .filter(
                         (u) =>
                           u.family ===
-                          families.find((f) => f.name === 'Liśkiewicze')?.id
+                          families.find((f) => f.name === 'Liśkiewicze')?.id,
                       )
                       .every((u) => u.has_been_drawn && u.already_drew)
                       ? 'tak'

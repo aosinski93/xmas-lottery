@@ -10,10 +10,13 @@ export const Welcome = () => {
     dropdownOpen,
     toggleDropdown,
     handleSetUser,
+    hasUsersWithoutGiftSuggestions,
   } = useWelcomeStep();
 
   const usersOptions = users.filter((user) => !user.already_drew);
   const drawUnavailable = usersOptions.length === 0;
+
+  const noGiftSuggestionsWarningText = `Niektórzy użytkownicy nie dodali jeszcze propozycji prezentów.`;
 
   if (loading) {
     return (
@@ -27,6 +30,11 @@ export const Welcome = () => {
 
   return (
     <div className="flex flex-col flex-auto items-center gap-4 bg-background-color-snow pt-6">
+      {hasUsersWithoutGiftSuggestions && (
+        <p className="z-10 text-sm text-black-600">
+          {noGiftSuggestionsWarningText}
+        </p>
+      )}
       {drawInProgress ? (
         drawingUser && (
           <p className="z-10">{`${drawingUser} właśnie losuje, poczekaj na swoją kolej`}</p>

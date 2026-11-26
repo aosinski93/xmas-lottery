@@ -34,12 +34,22 @@ const listUtils = async (): Promise<Utils[]> => {
 };
 
 const listFamilies = async (): Promise<Family[]> => {
-  const { data, error } = await supabase
-    .from<Family>('families')
-    .select('*');
+  const { data, error } = await supabase.from<Family>('families').select('*');
 
   throwOnError(error);
   return data ?? [];
+};
+
+const addUser = async (user: Partial<User>) => {
+  const { error } = await supabase.from<User>('users').insert(user);
+
+  throwOnError(error);
+};
+
+const deleteUser = async (id: number) => {
+  const { error } = await supabase.from<User>('users').delete().eq('id', id);
+
+  throwOnError(error);
 };
 
 const updateUser = async (id: number, changes: Partial<User>) => {
@@ -54,7 +64,7 @@ const updateUser = async (id: number, changes: Partial<User>) => {
 const setDrawInProgress = async (
   family: number,
   drawInProgress: boolean,
-  userDrawing: string | null
+  userDrawing: string | null,
 ) => {
   const { error } = await supabase
     .from<Utils>('utils')
@@ -101,10 +111,12 @@ export const lotteryRepository = {
   listUsers,
   listUtils,
   listFamilies,
+  addUser,
   updateUser,
   setDrawInProgress,
   recordDrawResult,
   resetUsers,
   resetUtils,
   subscribe,
+  deleteUser,
 };

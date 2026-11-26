@@ -1,15 +1,12 @@
 import { useAtomValue } from 'jotai';
-import { stepAtom } from './atoms';
-import { Welcome, Draw, Header } from './components';
+import { stepAtom, StepName } from './atoms';
+import { Welcome, Draw, Header, GiftEntry } from './components';
 import { useLotteryData } from './contexts/lottery-data-context';
 
-type Steps = {
-  [key: number]: JSX.Element;
-};
-
-const steps: Steps = {
-  1: <Welcome />,
-  2: <Draw />,
+const steps: Record<StepName, JSX.Element> = {
+  [StepName.welcome]: <Welcome />,
+  [StepName.gift_entry]: <GiftEntry />,
+  [StepName.draw]: <Draw />,
 };
 
 const App = () => {
